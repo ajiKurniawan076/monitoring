@@ -1,0 +1,6 @@
+Saya membuat aplikasi dengan Laravel Breeze + react,
+
+untuk sejauh ini sudah mengerjakan CRUD sesuai role user, pembuatan report berdasarkan hardware dan menu download report. 
+Tapi report yang ditampilkan masih berdasarkan hardware yang diinput, belum menerapkan periode tanggal inputan user.
+
+untuk yang lain belum sempat saya kerjakan, mohon maaf sebelumnya dan Terima kasih
