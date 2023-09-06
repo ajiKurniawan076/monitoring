@@ -23,41 +23,40 @@ export default function Report(props) {
     const [value, setvalue] = useState(0)
     const getValue = (id, sensor) => {
         let nilai = 0
-        props.detail.map((td, i) => {
-            if (td.trans_id == id && td.sensor == sensor) { nilai = td.value }
+        props.all.map((td, i) => {
+            if (td.trans_id == id && td.sensor == sensor.sensor) { nilai = td.value }
 
         })
         return nilai
     }
 
-    const getmin = () => {
+    const getmin = (sensor) => {
         let min = 0
         let index = 0
-        props.detail.map((td, i) => {
-            if (i == 0) { min = td.value }
+        props.all.map((td, i) => {
+            if (min == 0 && td.sensor == sensor) { min = td.value }
             else {
-                if (td.value < min) { min = td.value; index = i }
+                if (td.value < min && td.sensor == sensor) { min = td.value; index = i }
             }
         }
         )
-        return min + ' ' + props.detail[index].sensor
+        return min
     }
-    const getmax = () => {
+    const getmax = (sensor) => {
         let max = 0
         let index = 0
-        props.detail.map((td, i) => {
-            if (i == 0) { max = td.value }
+        props.all.map((td, i) => {
+            if (max == 0 && td.sensor == sensor) { max = td.value }
             else {
-                if (td.value > max) { max = td.value; index = i }
+                if (td.value > max && td.sensor == sensor) { max = td.value; index = i }
             }
         }
         )
-        return max + ' ' + props.detail[index].sensor
+        return max
     }
-
     const ref = createRef()
     return (
-        <div className='flex flex-col items-center w-screen h-screen justify-start bg-gray-200' >
+        <div className='flex flex-col items-center w-screen min-h-screen h-fit justify-start bg-gray-200' >
             <Navbar auth={props.auth} />
             <div className="w-full grid sm:grid-cols-4 mt-3 p-3 text-blue-600 gap-3 justify-center">
                 <span>
@@ -76,24 +75,24 @@ export default function Report(props) {
                     <button className='bg-blue-400 hover:bg-blue-600 duration-300 text-white h-10 rounded-lg p-3 flex w-full justify-center sm:w-3/5 items-center' onClick={() => handleload()}>LOAD DATA</button>
                 </span>
             </div>
-            <div className='w-full text-center mt-5'>
+            <div className='w-full text-center mt-5 flex flex-col items-center' ref={ref}>
                 {props.transaksi ?
                     <div className='flex flex-col'>
                         <span>Location : {props.hardware.location}</span>
                         <span>Coordinate : {props.hardware.latitude} , {props.hardware.longitude}</span>
                         <span>Last Send : {props.hardware.localtime}</span>
-                        <span>Maximal Value : {getmax()}</span>
-                        <span>Minimal Send : {getmin()}</span>
+                        <span>Maximal Value : {props.sensor.map((a,i)=>(a.sensor+' = '+getmax(a.sensor)+' '))}</span>
+                        <span>Minimal Send : {props.sensor.map((a,i)=>(a.sensor+' = '+getmin(a.sensor)+' '))}</span>
                     </div>
                     :
                     <p>Belum ada Data</p>}
-            </div>
+            
             {props.transaksi ?
-                <><table className='mt-5 bg-gray-600 text-white' id='tablereport' ref={ref}>
+                <><table className='mt-5 bg-gray-600 text-white' id='tablereport'>
                     <thead><tr>
                         <td className='table-heads'>Nomor</td>
                         <td className='table-heads'>Local Time</td>
-                        {props.sensor.map((header, index) => (<td className='table-heads' key={index}>{header}</td>))}
+                        {props.sensor.map((header, index) => (<td className='table-heads' key={index}>{header.sensor_name}</td>))}
                     </tr></thead>
                     <tbody>
                         {props.transaksi.map((data, index) => (
@@ -105,7 +104,13 @@ export default function Report(props) {
                         ))}
                     </tbody>
                 </table>
-                        <ReactHTMLTableToExcel
+                </>
+                :
+                ''
+            }
+            </div> 
+            {props.transaksi && <>
+                <ReactHTMLTableToExcel
                             id="test-table-xls-button"
                             className='p-1 bg-green-500/80 rounded-md shadow-md text-white mt-3 w-[200px]'
                             table="tablereport"
@@ -117,11 +122,8 @@ export default function Report(props) {
                             <button className='p-1 bg-red-500/80 rounded-md shadow-md text-white mt-3 w-[200px]' onClick={toPdf}>Generate pdf</button>
                         )}
                     </ReactToPdf>
-
-                </>
-                :
-                ''
-            }
+            </>}
+            
         </div>
     )
 }
